@@ -1,0 +1,572 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<link rel="icon" href="logo.png">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+</head>
+<body>
+<title>S.M.U.R.F. Fila de Contato</title>
+<style>
+  /* Layout: barra lateral fixa + área de trabalho (fila à esquerda, passageiro à direita); no celular vira barra superior, abas no rodapé e painel deslizante. */
+  :root {
+    --navy: #06224D;
+    --blue: #0A4DA2;
+    --blue-soft: #EEF4FC;
+    --sky: #1E9BE0;
+    --ink: #0F1E36;
+    --muted: #5B6B82;
+    --line: #E6EBF2;
+    --track: #E8EEF6;
+    --bg: #F6F8FB;
+    --card: #FFFFFF;
+    --chip: #F1F5F9;
+    --chip-ink: #334155;
+    --green: #2BB673;
+    --green-ink: #1B7A4C;
+    --yellow: #F2B90C;
+    --yellow-ink: #8A6700;
+    --red: #E5432F;
+    --idle: #CBD5E1;
+    --on-blue: #FFFFFF;
+    --scrim: rgba(6, 34, 77, 0.45);
+    --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    color-scheme: light;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 14.5px; line-height: 1.4; -webkit-font-smoothing: antialiased; }
+  button { font: inherit; color: inherit; background: none; border: none; cursor: pointer; text-align: left; }
+  button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--sky); outline-offset: 2px; }
+  .num { font-variant-numeric: tabular-nums; }
+
+  .app { display: grid; grid-template-columns: 248px minmax(0, 1fr); min-height: 100vh; }
+
+  /* Barra lateral */
+  .side { background: var(--card); border-right: 1px solid var(--line); padding: 28px 20px; display: flex; flex-direction: column; gap: 28px; position: sticky; top: 0; height: 100vh; }
+  .brand { display: flex; align-items: center; gap: 12px; padding: 0 8px; }
+  .brand img { width: 48px; height: 48px; border-radius: 50%; flex: none; background: var(--navy); }
+  .brand b { font-size: 19px; letter-spacing: 1.5px; color: var(--navy); display: block; line-height: 1.2; }
+  .brand span { font-size: 11.5px; color: var(--muted); white-space: nowrap; }
+  .nav { display: flex; flex-direction: column; gap: 4px; }
+  .nav button { color: var(--muted); padding: 11px 12px; border-radius: 8px; display: flex; align-items: center; gap: 12px; width: 100%; }
+  .nav button i { width: 8px; height: 8px; border-radius: 50%; background: var(--idle); flex: none; }
+  .nav button:hover { background: var(--bg); }
+  .nav button[aria-current="page"] { background: var(--blue-soft); color: var(--blue); font-weight: 600; }
+  .nav button[aria-current="page"] i { background: var(--blue); }
+  .side-foot { margin-top: auto; font-size: 12px; color: var(--muted); line-height: 1.5; padding: 0 8px; }
+  .dots { display: flex; gap: 6px; margin-bottom: 12px; }
+  .dots i { width: 8px; height: 8px; border-radius: 50%; }
+
+  /* Área principal */
+  main { padding-block: 32px 48px; padding-inline: 40px; min-width: 0; }
+  .view { display: flex; flex-direction: column; gap: 24px; }
+  .head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; }
+  h1 { font-size: 26px; font-weight: 650; letter-spacing: -0.3px; color: var(--navy); text-wrap: balance; }
+  .head p { color: var(--muted); margin-top: 6px; }
+  .cap { display: flex; align-items: center; gap: 10px; font-size: 13.5px; color: var(--muted); flex-wrap: wrap; }
+  .stepper { display: flex; align-items: center; background: var(--card); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  .stepper button { width: 40px; height: 40px; text-align: center; font-size: 18px; color: var(--blue); }
+  .stepper button:hover { background: var(--blue-soft); }
+  .stepper output { padding: 0 6px; min-width: 96px; text-align: center; color: var(--ink); font-weight: 600; }
+  .btn { background: var(--blue); color: var(--on-blue); border-radius: 8px; padding: 0 16px; min-height: 40px; font-size: 13.5px; font-weight: 600; text-align: center; display: inline-flex; align-items: center; justify-content: center; }
+  .btn:hover { background: var(--navy); }
+  .btn.wide { width: 100%; min-height: 46px; }
+  .btn.line { background: var(--card); color: var(--blue); border: 1px solid var(--line); }
+  .btn.line:hover { background: var(--blue-soft); }
+  .link { color: var(--blue); font-weight: 600; font-size: 13.5px; text-align: center; min-height: 40px; width: 100%; }
+
+  .kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+  .kpi { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 18px 20px; }
+  .kpi span { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; display: block; }
+  .kpi b { display: block; font-size: 32px; font-weight: 650; margin-top: 8px; color: var(--navy); letter-spacing: -0.5px; line-height: 1.15; }
+  .kpi b small, .kpi small { font-size: 13px; font-weight: 400; color: var(--muted); letter-spacing: 0; }
+
+  .tools { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  .seg { display: flex; background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 3px; }
+  .seg button { padding: 0 14px; min-height: 34px; border-radius: 6px; font-size: 13.5px; color: var(--muted); }
+  .seg button[aria-pressed="true"] { background: var(--blue-soft); color: var(--blue); font-weight: 600; }
+  select { font: inherit; font-size: 13.5px; color: var(--ink); background: var(--card); border: 1px solid var(--line); border-radius: 8px; min-height: 40px; padding: 0 12px; max-width: 100%; }
+  .count { color: var(--muted); font-size: 13.5px; margin-left: auto; }
+
+  .work { display: grid; grid-template-columns: minmax(0, 1fr) 348px; gap: 16px; align-items: start; }
+  .panel { background: var(--card); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+
+  /* Fila */
+  .cols, .row { display: grid; grid-template-columns: 30px 94px 150px minmax(0, 1fr) 122px; gap: 12px; align-items: center; padding: 0 20px; }
+  .cols { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; min-height: 46px; border-bottom: 1px solid var(--line); }
+  .row { width: 100%; min-height: 60px; border-bottom: 1px solid var(--line); }
+  .row:hover { background: var(--bg); }
+  .row.sel { background: var(--blue-soft); box-shadow: inset 3px 0 0 var(--blue); }
+  .row.out { opacity: 0.55; }
+  .pos { color: var(--muted); }
+  .pid { font-weight: 600; }
+  .prob { display: flex; align-items: center; gap: 10px; font-weight: 600; }
+  .bar { flex: 1; max-width: 64px; height: 6px; border-radius: 3px; background: var(--track); overflow: hidden; display: block; }
+  .bar i { display: block; height: 100%; background: var(--blue); border-radius: 3px; }
+  .chips { display: flex; gap: 6px; flex-wrap: nowrap; min-width: 0; overflow: hidden; }
+  .chip { font-size: 12.5px; padding: 4px 10px; border-radius: 999px; background: var(--chip); color: var(--chip-ink); white-space: nowrap; }
+  .st { font-size: 12.5px; color: var(--muted); display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+  .st i { width: 7px; height: 7px; border-radius: 50%; background: var(--idle); flex: none; }
+  .st.done { color: var(--green-ink); } .st.done i { background: var(--green); }
+  .st.now { color: var(--yellow-ink); } .st.now i { background: var(--yellow); }
+  .cut { padding: 10px 20px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.6px; color: var(--muted); background: var(--bg); border-bottom: 1px solid var(--line); }
+  .more { padding: 14px 20px; }
+  .empty { padding: 32px 20px; color: var(--muted); text-align: center; }
+
+  /* Painel do passageiro */
+  .detail { padding: 22px; display: flex; flex-direction: column; gap: 18px; position: sticky; top: 24px; }
+  .lbl { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; }
+  .detail h2 { font-size: 18px; font-weight: 650; color: var(--navy); margin-top: 4px; }
+  .big { font-size: 46px; font-weight: 650; color: var(--navy); letter-spacing: -1px; line-height: 1; }
+  .big small { font-size: 13.5px; font-weight: 400; color: var(--muted); letter-spacing: 0; margin-left: 8px; }
+  .why { display: flex; flex-direction: column; gap: 12px; margin-top: 12px; }
+  .why div { display: flex; flex-direction: column; gap: 6px; }
+  .why .bar { max-width: none; flex: none; }
+  .note { font-size: 12.5px; line-height: 1.5; color: var(--muted); background: var(--bg); border-radius: 8px; padding: 12px 14px; }
+  .acts { display: flex; flex-direction: column; gap: 10px; }
+  .outcome { display: grid; grid-template-columns: 1fr; gap: 8px; }
+  .close { display: none; }
+  .scrim { display: none; }
+
+  /* Outras telas */
+  .grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  .box { padding: 22px; display: flex; flex-direction: column; gap: 16px; }
+  .box h2 { font-size: 16px; font-weight: 650; color: var(--navy); }
+  .box p { color: var(--muted); }
+  .hbar { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 12px; align-items: center; }
+  .hbar .bar { grid-column: 1 / -1; max-width: none; height: 8px; border-radius: 4px; }
+  .hbar b { font-weight: 600; }
+  .scroll { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; padding: 10px 12px 10px 0; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  td { padding: 12px 12px 12px 0; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  tr:last-child td { border-bottom: none; }
+  .hist { display: flex; flex-direction: column; }
+  .hist div { display: grid; grid-template-columns: 64px minmax(0, 1fr) auto; gap: 12px; padding: 14px 20px; border-bottom: 1px solid var(--line); align-items: center; }
+  .hist div:last-child { border-bottom: none; }
+  .hist time { color: var(--muted); }
+  .field { display: flex; flex-direction: column; gap: 8px; }
+  input[type="range"] { width: 100%; accent-color: var(--blue); min-height: 32px; }
+  .kv { display: flex; justify-content: space-between; gap: 16px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+  .kv:last-child { border-bottom: none; }
+  .kv span { color: var(--muted); }
+
+  .tabs { display: none; }
+  .toast { position: fixed; left: 50%; bottom: 32px; transform: translateX(-50%); background: var(--navy); color: var(--on-blue); padding: 12px 18px; border-radius: 10px; font-size: 13.5px; max-width: calc(100% - 32px); z-index: 40; }
+
+  @media (max-width: 1180px) and (min-width: 901px) {
+    .cols, .row { grid-template-columns: 36px 96px 150px minmax(0, 1fr); }
+    .cols span:last-child, .row .st { display: none; }
+    .work { grid-template-columns: minmax(0, 1fr) 320px; }
+    .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+
+  @media (max-width: 900px) {
+    .app { display: block; min-height: 0; }
+    .side { position: sticky; top: env(safe-area-inset-top, 0px); height: auto; flex-direction: row; align-items: center; padding: 12px 16px; border-right: none; border-bottom: 1px solid var(--line); z-index: 20; gap: 12px; }
+    .brand { padding: 0; }
+    .brand img { width: 38px; height: 38px; }
+    .brand b { font-size: 16px; }
+    .nav { display: none; }
+    .side-foot { margin: 0 0 0 auto; padding: 0; text-align: right; font-size: 11px; }
+    .side-foot .dots, .side-foot .long { display: none; }
+    main { padding-block: 20px 104px; padding-inline: 16px; }
+    .view { gap: 16px; }
+    h1 { font-size: 22px; }
+    .head { align-items: stretch; flex-direction: column; }
+    .cap { justify-content: space-between; }
+    .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .kpi { padding: 14px; }
+    .kpi b { font-size: 26px; }
+    .kpi span { font-size: 11px; }
+    .count { margin-left: 0; width: 100%; }
+    .work { display: block; }
+    .grid2 { grid-template-columns: minmax(0, 1fr); }
+    .cols { display: none; }
+    .chips { flex-wrap: wrap; overflow: visible; }
+    .row { grid-template-columns: 28px minmax(0, 1fr) auto; grid-template-areas: "pos pid prob" ". chips chips" ". st st"; gap: 6px 10px; padding: 14px 16px; min-height: 0; }
+    .row .pos { grid-area: pos; } .row .pid { grid-area: pid; } .row .prob { grid-area: prob; } .row .chips { grid-area: chips; } .row .st { grid-area: st; }
+    .row .bar { width: 56px; flex: none; }
+    .cut, .more { padding-inline: 16px; }
+
+    .scrim { display: block; position: fixed; inset: 0; background: var(--scrim); z-index: 30; }
+    .detail { position: fixed; left: 0; right: 0; bottom: 0; top: auto; z-index: 31; border-radius: 16px 16px 0 0; border: none; max-height: 88%; overflow-y: auto; padding: 20px 16px calc(20px + env(safe-area-inset-bottom, 0px)); box-shadow: 0 -8px 32px var(--scrim); }
+    .detail:not(.open) { display: none; }
+    .close { display: inline-flex; position: absolute; right: 12px; top: 12px; width: 40px; height: 40px; align-items: center; justify-content: center; border-radius: 50%; background: var(--bg); color: var(--muted); font-size: 20px; }
+
+    .tabs { display: grid; grid-template-columns: repeat(4, 1fr); position: fixed; left: 0; right: 0; bottom: 0; background: var(--card); border-top: 1px solid var(--line); padding: 6px 8px calc(6px + env(safe-area-inset-bottom, 0px)); z-index: 20; }
+    .tabs button { display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 8px 2px; min-height: 52px; font-size: 11.5px; color: var(--muted); text-align: center; border-radius: 8px; }
+    .tabs button i { width: 20px; height: 4px; border-radius: 2px; background: var(--idle); }
+    .tabs button[aria-current="page"] { color: var(--blue); font-weight: 600; }
+    .tabs button[aria-current="page"] i { background: var(--blue); }
+    .toast { bottom: calc(84px + env(safe-area-inset-bottom, 0px)); }
+    .hist div { grid-template-columns: 52px minmax(0, 1fr); padding-inline: 16px; }
+    .hist div span:last-child { grid-column: 2; }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .bar i { transition: width 0.25s ease; }
+  }
+</style>
+
+<div class="app">
+  <aside class="side">
+    <div class="brand">
+      <img src="logo.png" alt="Logo do S.M.U.R.F.">
+      <div><b>S.M.U.R.F.</b><span>Recuperação de clientes</span></div>
+    </div>
+    <nav class="nav" aria-label="Seções">
+      <button data-go="fila"><i></i>Fila de hoje</button>
+      <button data-go="historico"><i></i>Histórico de contatos</button>
+      <button data-go="indicadores"><i></i>Indicadores do modelo</button>
+      <button data-go="config"><i></i>Configurações</button>
+    </nav>
+    <div class="side-foot">
+      <div class="dots"><i style="background:var(--green)"></i><i style="background:var(--yellow)"></i><i style="background:var(--red)"></i><i style="background:var(--sky)"></i></div>
+      Protótipo conceitual.<span class="long"><br>Grupo 5 · Inteli. Dados do dia 30/06/2026, sem identificação de passageiros.</span>
+    </div>
+  </aside>
+
+  <main>
+    <!-- Fila de hoje -->
+    <section class="view" id="v-fila">
+      <div class="head">
+        <div>
+          <h1>Fila de contato</h1>
+          <p>Terça-feira, 30 de junho de 2026 · atualizada após o último pouso</p>
+        </div>
+        <div class="cap">
+          <span>Capacidade de hoje</span>
+          <div class="stepper">
+            <button id="cap-menos" aria-label="Diminuir capacidade">−</button>
+            <output id="cap-valor" class="num">30 contatos</output>
+            <button id="cap-mais" aria-label="Aumentar capacidade">+</button>
+          </div>
+          <button class="btn" id="exportar">Exportar fila</button>
+        </div>
+      </div>
+
+      <div class="kpis">
+        <div class="kpi"><span>Passageiros que pousaram</span><b class="num">260</b><small>no dia</small></div>
+        <div class="kpi"><span>Na fila pelo limiar</span><b class="num">103</b><small>39,6% do dia</small></div>
+        <div class="kpi"><span>Risco acima de 85%</span><b class="num" id="k-alto">10</b><small>prioridade máxima</small></div>
+        <div class="kpi"><span>Contatos registrados</span><b class="num"><span id="k-feitos" style="display:inline;font-size:inherit;color:inherit;letter-spacing:inherit;text-transform:none">2</span> <small id="k-cap">de 30</small></b><small>capacidade da equipe</small></div>
+      </div>
+
+      <div class="tools">
+        <div class="seg" role="group" aria-label="Filtrar por situação">
+          <button data-f="todos" aria-pressed="true">Todos</button>
+          <button data-f="aguardando" aria-pressed="false">Aguardando</button>
+          <button data-f="contatado" aria-pressed="false">Contatados</button>
+        </div>
+        <select id="f-motivo" aria-label="Filtrar por motivo"></select>
+        <span class="count" id="contagem"></span>
+      </div>
+
+      <div class="work">
+        <div class="panel">
+          <div class="cols"><span>#</span><span>Passageiro</span><span>Chance de detração</span><span>Principais motivos</span><span>Situação</span></div>
+          <div id="lista"></div>
+        </div>
+        <div class="scrim" id="scrim" hidden></div>
+        <div class="panel detail" id="detalhe" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <!-- Histórico -->
+    <section class="view" id="v-historico" hidden>
+      <div class="head"><div><h1>Histórico de contatos</h1><p>Contatos registrados hoje pela equipe de recuperação</p></div></div>
+      <div class="panel"><div class="hist" id="hist"></div></div>
+    </section>
+
+    <!-- Indicadores -->
+    <section class="view" id="v-indicadores" hidden>
+      <div class="head"><div><h1>Indicadores do modelo</h1><p>Resultado no conjunto de teste: 106.699 passageiros, de julho de 2025 a junho de 2026</p></div></div>
+      <div class="kpis">
+        <div class="kpi"><span>Melhor que fila sorteada</span><b class="num">2,37×</b><small>PR-AUC de 0,4933</small></div>
+        <div class="kpi"><span>Detratores alcançados</span><b class="num">76,6%</b><small>meta de 70%</small></div>
+        <div class="kpi"><span>Passageiros na fila</span><b class="num">54,3%</b><small>no limiar adotado</small></div>
+        <div class="kpi"><span>ROC-AUC</span><b class="num">0,7244</b><small>meta de 0,75 não atingida</small></div>
+      </div>
+      <div class="grid2">
+        <div class="panel box">
+          <h2>Quanto menor a fila, mais certeira</h2>
+          <div class="scroll">
+            <table class="num">
+              <tr><th>Fatia de maior risco</th><th>Contatos no ano</th><th>Eram detratores</th><th>Detratores alcançados</th></tr>
+              <tr><td>1%</td><td>1.067</td><td>86,2%</td><td>4,1%</td></tr>
+              <tr><td>5%</td><td>5.335</td><td>76,6%</td><td>18,4%</td></tr>
+              <tr><td>10%</td><td>10.670</td><td>63,8%</td><td>30,7%</td></tr>
+              <tr><td>20%</td><td>21.340</td><td>46,9%</td><td>45,1%</td></tr>
+            </table>
+          </div>
+          <p>Na base inteira, 20,8% dos passageiros são detratores.</p>
+        </div>
+        <div class="panel box">
+          <h2>O que mais pesa na previsão</h2>
+          <div class="hbar"><span>Cancelamento do voo</span><b class="num">4,04×</b><span class="bar"><i style="width:100%"></i></span></div>
+          <div class="hbar"><span>Atraso na saída</span><b class="num">1,73×</b><span class="bar"><i style="width:42.8%"></i></span></div>
+          <div class="hbar"><span>Atraso na chegada</span><b class="num">1,36×</b><span class="bar"><i style="width:33.7%"></i></span></div>
+          <div class="hbar"><span>Aviso do cancelamento com antecedência</span><b class="num">0,83×</b><span class="bar"><i style="width:20.5%;background:var(--sky)"></i></span></div>
+          <p>Razões de chances da regressão logística. Acima de 1 aumenta o risco; abaixo de 1 reduz. Para atrasos e antecedência, o valor é por desvio-padrão.</p>
+        </div>
+        <div class="panel box">
+          <h2>Alcance por nível de fidelidade</h2>
+          <div class="hbar"><span>Diamante</span><b class="num">93,2%</b><span class="bar"><i style="width:93.2%"></i></span></div>
+          <div class="hbar"><span>Sem cadastro no programa</span><b class="num">60,4%</b><span class="bar"><i style="width:60.4%;background:var(--yellow)"></i></span></div>
+          <p>Parcela dos detratores de cada grupo que entra na fila. A diferença é uma decisão de equidade para a companhia.</p>
+        </div>
+        <div class="panel box">
+          <h2>Como ler estes números</h2>
+          <p>O modelo prevê quem tende a ser detrator. Ele não mede se o contato evita a detração: para isso, a recomendação é manter um grupo de controle sem contato.</p>
+          <p>Os fatores mostram associação, não causa. A base contém apenas quem respondeu à pesquisa.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Configurações -->
+    <section class="view" id="v-config" hidden>
+      <div class="head"><div><h1>Configurações</h1><p>Ajustes da fila para a equipe de hoje</p></div></div>
+      <div class="grid2">
+        <div class="panel box">
+          <h2>Capacidade de contato</h2>
+          <div class="field">
+            <label for="cap-range">Contatos que a equipe consegue fazer hoje: <b class="num" id="cap-range-valor">30</b></label>
+            <input type="range" id="cap-range" min="10" max="100" step="10" value="30">
+          </div>
+          <p>A fila sempre começa pelos passageiros de maior risco. Quem fica além da capacidade aparece esmaecido.</p>
+        </div>
+        <div class="panel box">
+          <h2>Regra de entrada na fila</h2>
+          <div>
+            <div class="kv"><span>Limiar do escore</span><b class="num">0,3632</b></div>
+            <div class="kv"><span>Chance mínima equivalente</span><b class="num">17,6%</b></div>
+            <div class="kv"><span>Critério</span><b>alcançar 70% dos detratores</b></div>
+          </div>
+          <p>O limiar foi escolhido na validação e não é ajustado nesta tela.</p>
+        </div>
+        <div class="panel box">
+          <h2>Sobre esta demonstração</h2>
+          <p>Protótipo conceitual do Grupo 5 (Inteli). Os totais do dia e as dez primeiras posições vêm do modelo final aplicado a 30/06/2026. As demais posições, os identificadores e os registros de contato são ilustrativos.</p>
+          <button class="btn line" id="reiniciar">Reiniciar demonstração</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <nav class="tabs" aria-label="Seções">
+    <button data-go="fila"><i></i>Fila</button>
+    <button data-go="historico"><i></i>Histórico</button>
+    <button data-go="indicadores"><i></i>Indicadores</button>
+    <button data-go="config"><i></i>Ajustes</button>
+  </nav>
+  <div class="toast" id="toast" role="status" hidden></div>
+</div>
+
+<script>
+(function () {
+  var M = {
+    saida: 'Atraso na saída', chegada: 'Atraso na chegada', cancel: 'Cancelamento do voo',
+    freq: 'Frequência de viagem', entret: 'Entretenimento a bordo', dur: 'Duração do voo'
+  };
+  var CURTO = { cancel: 'Cancelamento' };
+  // Dez primeiras posições: saída real da função gerar_fila em 30/06/2026.
+  var REAIS = [
+    ['7F3A', 0.9461, ['saida', 'chegada', 'freq']],
+    ['21C8', 0.9456, ['saida', 'chegada', 'freq']],
+    ['9B40', 0.9446, ['saida', 'chegada', 'freq']],
+    ['C512', 0.9254, ['chegada', 'cancel', 'freq']],
+    ['3E77', 0.9202, ['saida', 'chegada', 'entret']],
+    ['A0D9', 0.9167, ['saida', 'chegada', 'entret']],
+    ['58B2', 0.9163, ['saida', 'cancel', 'chegada']],
+    ['E614', 0.9142, ['saida', 'chegada', 'entret']],
+    ['12FD', 0.9096, ['chegada', 'cancel', 'freq']],
+    ['B38E', 0.8500, ['chegada', 'dur', 'saida']]
+  ];
+  var TOTAL = 103, PASSO = 20;
+  var semente = 20260630;
+  function rnd() { semente = (semente * 1664525 + 1013904223) % 4294967296; return semente / 4294967296; }
+  function hex4() { return ('0000' + Math.floor(rnd() * 65536).toString(16).toUpperCase()).slice(-4); }
+
+  var base = [];
+  function montar() {
+    semente = 20260630; base = [];
+    var chaves = ['saida', 'chegada', 'cancel', 'freq', 'entret', 'dur'];
+    for (var i = 1; i <= TOTAL; i++) {
+      var r = REAIS[i - 1], p, id, mot;
+      if (r) { id = r[0]; p = r[1]; mot = r[2]; }
+      else {
+        // Posições 11 a 103: ilustrativas, decrescendo até o limiar de 17,6%.
+        p = 0.176 + (0.84 - 0.176) * Math.pow((TOTAL - i) / (TOTAL - 11), 1.5);
+        id = hex4();
+        var a = chaves[Math.floor(rnd() * (i < 45 ? 3 : 6))], b = a, c = a;
+        while (b === a) b = chaves[Math.floor(rnd() * 6)];
+        while (c === a || c === b) c = chaves[Math.floor(rnd() * 6)];
+        mot = [a, b, c];
+      }
+      var w1 = 0.7 + rnd() * 0.25, w2 = w1 * (0.5 + rnd() * 0.3), w3 = w2 * (0.25 + rnd() * 0.3);
+      base.push({ pos: i, id: 'PAX-' + id, p: p, mot: mot, pesos: [w1, w2, w3], st: 'aguardando' });
+    }
+  }
+
+  var S;
+  function iniciar() {
+    montar();
+    base[0].st = 'contatado'; base[1].st = 'contatado';
+    S = { cap: 30, filtro: 'todos', motivo: '', sel: 3, visiveis: PASSO, escolhendo: false, aberto: false,
+      hist: [ { hora: '08:57', id: base[1].id, pos: 2, res: 'Sem resposta' }, { hora: '08:42', id: base[0].id, pos: 1, res: 'Resolvido' } ] };
+  }
+
+  function $(id) { return document.getElementById(id); }
+  function pct(p) { return (p * 100).toFixed(1).replace('.', ',') + '%'; }
+  function esc(t) { return String(t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function celular() { return window.matchMedia('(max-width: 900px)').matches; }
+  function porPos(pos) { return base[pos - 1]; }
+
+  function filtrados() {
+    return base.filter(function (x) {
+      if (S.filtro !== 'todos' && x.st !== S.filtro) return false;
+      if (S.motivo && x.mot.slice(0, 2).indexOf(S.motivo) < 0) return false;
+      return true;
+    });
+  }
+
+  function situacao(x) {
+    if (x.st === 'contatado') return '<span class="st done"><i></i>Contatado</span>';
+    if (x.pos === S.sel) return '<span class="st now"><i></i>Em atendimento</span>';
+    return '<span class="st"><i></i>Aguardando</span>';
+  }
+
+  function desenharLista() {
+    var lista = filtrados(), html = '', corte = false;
+    lista.slice(0, S.visiveis).forEach(function (x) {
+      if (!corte && x.pos > S.cap) { corte = true; html += '<div class="cut">Além da capacidade de hoje</div>'; }
+      html += '<button class="row' + (x.pos === S.sel ? ' sel' : '') + (x.pos > S.cap ? ' out' : '') + '" data-pos="' + x.pos + '">' +
+        '<span class="pos num">' + x.pos + '</span><span class="pid num">' + esc(x.id) + '</span>' +
+        '<span class="prob num">' + pct(x.p) + '<span class="bar"><i style="width:' + (x.p * 100).toFixed(1) + '%"></i></span></span>' +
+        '<span class="chips"><span class="chip">' + esc(CURTO[x.mot[0]] || M[x.mot[0]]) + '</span><span class="chip">' + esc(CURTO[x.mot[1]] || M[x.mot[1]]) + '</span></span>' +
+        situacao(x) + '</button>';
+    });
+    if (!lista.length) html = '<div class="empty">Nenhum passageiro com esse filtro.</div>';
+    else if (lista.length > S.visiveis) html += '<div class="more"><button class="btn line wide" id="mais">Mostrar mais ' + Math.min(PASSO, lista.length - S.visiveis) + '</button></div>';
+    $('lista').innerHTML = html;
+    $('contagem').textContent = lista.length + (lista.length === 1 ? ' passageiro' : ' passageiros');
+  }
+
+  function desenharDetalhe() {
+    var x = porPos(S.sel), d = $('detalhe');
+    if (!x) { d.innerHTML = '<div class="empty">Selecione um passageiro na fila.</div>'; return; }
+    var acoes;
+    if (x.st === 'contatado') {
+      acoes = '<div class="note">Contato já registrado para este passageiro.</div><button class="btn line wide" id="proximo">Ir para o próximo aguardando</button>';
+    } else if (S.escolhendo) {
+      acoes = '<div class="lbl">Como foi o contato?</div><div class="outcome">' +
+        '<button class="btn wide" data-res="Resolvido">Resolvido</button>' +
+        '<button class="btn line wide" data-res="Sem resposta">Sem resposta</button>' +
+        '<button class="btn line wide" data-res="Encaminhado">Encaminhado a outra área</button></div>' +
+        '<button class="link" id="cancelar">Cancelar</button>';
+    } else {
+      acoes = '<button class="btn wide" id="registrar">Registrar contato</button><button class="link" id="pular">Pular para o próximo</button>';
+    }
+    d.innerHTML = '<button class="close" id="fechar" aria-label="Fechar">×</button>' +
+      '<div><div class="lbl">Passageiro selecionado</div><h2 class="num">' + esc(x.id) + ' · posição ' + x.pos + '</h2></div>' +
+      '<div class="big num">' + pct(x.p) + '<small>chance de detração</small></div>' +
+      '<div><div class="lbl">Por que está na fila</div><div class="why">' +
+      x.mot.map(function (m, i) {
+        return '<div>' + esc(M[m]) + '<span class="bar"><i style="width:' + Math.round(x.pesos[i] * 100) + '%' + (i === 2 ? ';background:var(--sky)' : '') + '"></i></span></div>';
+      }).join('') + '</div></div>' +
+      '<div class="note">Os motivos mostram o que o modelo associou a maior risco. Não indicam a causa da insatisfação deste passageiro.</div>' +
+      '<div class="acts">' + acoes + '</div>';
+    d.classList.toggle('open', S.aberto);
+    $('scrim').hidden = !(S.aberto && celular());
+  }
+
+  function desenharResumo() {
+    var feitos = base.filter(function (x) { return x.st === 'contatado'; }).length;
+    $('k-feitos').textContent = feitos;
+    $('k-cap').textContent = 'de ' + S.cap;
+    $('cap-valor').textContent = S.cap + ' contatos';
+    $('cap-range').value = S.cap;
+    $('cap-range-valor').textContent = S.cap;
+    $('hist').innerHTML = S.hist.length ? S.hist.map(function (h) {
+      return '<div><time class="num">' + h.hora + '</time><span><b class="num">' + esc(h.id) + '</b> · posição ' + h.pos + '</span><span class="st' + (h.res === 'Resolvido' ? ' done' : '') + '"><i></i>' + esc(h.res) + '</span></div>';
+    }).join('') : '<div class="empty" style="display:block">Nenhum contato registrado ainda. Registre o primeiro na fila de hoje.</div>';
+  }
+
+  function tudo() { desenharLista(); desenharDetalhe(); desenharResumo(); }
+
+  var relogio;
+  function aviso(texto) {
+    var t = $('toast'); t.textContent = texto; t.hidden = false;
+    clearTimeout(relogio); relogio = setTimeout(function () { t.hidden = true; }, 2600);
+  }
+
+  function proximoAguardando(depois) {
+    var lista = filtrados().filter(function (x) { return x.st === 'aguardando'; });
+    if (!lista.length) lista = base.filter(function (x) { return x.st === 'aguardando'; });
+    for (var i = 0; i < lista.length; i++) if (lista[i].pos > depois) return lista[i].pos;
+    return lista.length ? lista[0].pos : depois;
+  }
+
+  function mudarCap(v) {
+    S.cap = Math.max(10, Math.min(100, v));
+    tudo();
+  }
+
+  function ir(nome, semHash) {
+    var nomes = ['fila', 'historico', 'indicadores', 'config'];
+    if (nomes.indexOf(nome) < 0) nome = 'fila';
+    nomes.forEach(function (n) { $('v-' + n).hidden = n !== nome; });
+    document.querySelectorAll('[data-go]').forEach(function (b) {
+      if (b.dataset.go === nome) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
+    });
+    S.aberto = false; desenharDetalhe();
+    if (!semHash) { try { history.replaceState(null, '', '#' + nome); } catch (e) {} }
+    window.scrollTo(0, 0);
+  }
+
+  document.addEventListener('click', function (ev) {
+    var el = ev.target.closest('button');
+    if (ev.target.id === 'scrim') { S.aberto = false; S.escolhendo = false; desenharDetalhe(); return; }
+    if (!el) return;
+    if (el.dataset.go) { ir(el.dataset.go); return; }
+    if (el.dataset.pos) { S.sel = +el.dataset.pos; S.escolhendo = false; S.aberto = true; desenharLista(); desenharDetalhe(); return; }
+    if (el.dataset.f) {
+      S.filtro = el.dataset.f; S.visiveis = PASSO;
+      document.querySelectorAll('[data-f]').forEach(function (b) { b.setAttribute('aria-pressed', String(b === el)); });
+      desenharLista(); return;
+    }
+    if (el.dataset.res) {
+      var x = porPos(S.sel), agora = new Date();
+      x.st = 'contatado';
+      S.hist.unshift({ hora: ('0' + agora.getHours()).slice(-2) + ':' + ('0' + agora.getMinutes()).slice(-2), id: x.id, pos: x.pos, res: el.dataset.res });
+      S.escolhendo = false; S.sel = proximoAguardando(x.pos); S.aberto = false;
+      tudo(); aviso('Contato com ' + x.id + ' registrado.'); return;
+    }
+    switch (el.id) {
+      case 'registrar': S.escolhendo = true; desenharDetalhe(); break;
+      case 'cancelar': S.escolhendo = false; desenharDetalhe(); break;
+      case 'pular': case 'proximo': S.sel = proximoAguardando(S.sel); S.escolhendo = false; desenharLista(); desenharDetalhe(); break;
+      case 'fechar': S.aberto = false; S.escolhendo = false; desenharDetalhe(); break;
+      case 'mais': S.visiveis += PASSO; desenharLista(); break;
+      case 'cap-menos': mudarCap(S.cap - 10); break;
+      case 'cap-mais': mudarCap(S.cap + 10); break;
+      case 'exportar': aviso('Protótipo: a exportação entra na versão integrada ao CRM.'); break;
+      case 'reiniciar': iniciar(); $('f-motivo').value = ''; document.querySelectorAll('[data-f]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.f === 'todos')); }); tudo(); aviso('Demonstração reiniciada.'); break;
+    }
+  });
+
+  $('f-motivo').innerHTML = '<option value="">Todos os motivos</option>' + Object.keys(M).map(function (k) { return '<option value="' + k + '">' + esc(M[k]) + '</option>'; }).join('');
+  $('f-motivo').addEventListener('change', function () { S.motivo = this.value; S.visiveis = PASSO; desenharLista(); });
+  $('cap-range').addEventListener('input', function () { mudarCap(+this.value); });
+  window.addEventListener('resize', function () { $('scrim').hidden = !(S.aberto && celular()); });
+
+  iniciar();
+  tudo();
+  ir((location.hash || '').replace('#', '') || 'fila', true);
+})();
+</script>
+
+</body>
+</html>
